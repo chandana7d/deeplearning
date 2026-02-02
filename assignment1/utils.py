@@ -220,12 +220,24 @@ def plot_curves(train_loss_history, train_acc_history, valid_loss_history, valid
     :param valid_acc_history: validation accuracy history of epochs
     :return: None, save two figures in the current directory
     """
-    #############################################################################
-    # TODO:                                                                     #
-    #    1) Plot learning curves of training and validation loss                #
-    #    2) Plot learning curves of training and validation accuracy            #
-    #############################################################################
+    # Plot loss
+    plt.figure()
+    plt.plot(train_loss_history, label='Training Loss')
+    plt.plot(valid_loss_history, label='Validation Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.title('Training and Validation Loss')
+    plt.savefig('loss.png')
+    plt.close()
 
-    #############################################################################
-    #                              END OF YOUR CODE                             #
-    #############################################################################
+    # Plot accuracy
+    plt.figure()
+    plt.plot(train_acc_history, label='Training Accuracy')
+    plt.plot(valid_acc_history, label='Validation Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    plt.title('Training and Validation Accuracy')
+    plt.savefig('accuracy.png')
+    plt.close()
