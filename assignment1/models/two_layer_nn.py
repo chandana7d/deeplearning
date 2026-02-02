@@ -74,35 +74,20 @@ class TwoLayerNet(_baseNetwork):
             accuracy: the accuracy of the batch
             self.gradients: gradients are not explicitly returned but rather updated in the class member self.gradients
         """
-        loss = None
-        accuracy = None
-        #############################################################################
-        # TODO:                                                                     #
-        #    1) Implement the forward process:                                      #
-        #        1) Call sigmoid function between the two layers for non-linearity  #
-        #        2) The output of the second layer should be passed to softmax      #
-        #        function before computing the cross entropy loss                   #
-        #    2) Compute Cross-Entropy Loss and batch accuracy based on network      #
-        #       outputs                                                             #
-        #############################################################################
+        h1 = X @ self.weights['W1'] + self.weights['b1']
+        a1 = self.sigmoid(h1)
+        h2 = a1 @ self.weights['W2'] + self.weights['b2']
+        probs = self.softmax(h2)
+        loss = self.cross_entropy_loss(probs, y)
+        accuracy = self.compute_accuracy(probs, y)
 
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
-
-        #############################################################################
-        # TODO:                                                                     #
-        #    1) Implement the backward process:                                     #
-        #        1) Compute gradients of each weight and bias by chain rule         #
-        #        2) Store the gradients in self.gradients                           #
-        #    HINT: You will need to compute gradients backwards, i.e, compute       #
-        #          gradients of W2 and b2 first, then compute it for W1 and b1      #
-        #          You may also want to implement the analytical derivative of      #
-        #          the sigmoid function in self.sigmoid_dev first                   #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
-
+        one_hot = np.zeros_like(probs)
+        one_hot[np.arange(len(y)), y] = 1
+        dh2 = probs - one_hot
+        self.gradients['W2'] = a1.T @ dh2 / X.shape[0]
+        self.gradients['b2'] = np.sum(dh2, axis=0) / X.shape[0]
+        da1 = dh2 @ self.weights['W2'].T
+        dh1 = da1 * self.sigmoid_dev(h1)
+        self.gradients['W1'] = X.T @ dh1 / X.shape[0]
+        self.gradients['b1'] = np.sum(dh1, axis=0) / X.shape[0]
         return loss, accuracy

@@ -49,39 +49,34 @@ class SoftmaxRegression(_baseNetwork):
 
     def forward(self, X, y, mode='train'):
         """
-        Compute loss and gradients using softmax with vectorization.
+        The forward pass of the two-layer net. The activation function used in between the two layers is sigmoid, which
+        is to be implemented in self.,sigmoid.
+        The method forward should compute the loss of input batch X and gradients of each weights.
+        Further, it should also compute the accuracy of given batch. The loss and
+        accuracy are returned by the method and gradients are stored in self.gradients
 
-        :param X: a batch of image (N, 28x28)
+        :param X: a batch of images (N, input_size)
         :param y: labels of images in the batch (N,)
+        :param mode: if mode is training, compute and update gradients;else, just return the loss and accuracy
         :return:
             loss: the loss associated with the batch
             accuracy: the accuracy of the batch
+            self.gradients: gradients are not explicitly returned but rather updated in the class member self.gradients
         """
-        loss = None
-        gradient = None
-        accuracy = None
-        #############################################################################
-        # TODO:                                                                     #
-        #    1) Implement the forward process and compute the Cross-Entropy loss    #
-        #    2) Compute the gradient of the loss with respect to the weights        #
-        # Hint:                                                                     #
-        #   Store your intermediate outputs before ReLU for backwards               #
-        #############################################################################
 
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+        h = X @ self.weights['W1']
+        a = self.ReLU(h)
+        probs = self.softmax(a)
+        loss = self.cross_entropy_loss(probs, y)
+        accuracy = self.compute_accuracy(probs, y)
         if mode != 'train':
             return loss, accuracy
 
-        #############################################################################
-        # TODO:                                                                     #
-        #    1) Implement the backward process:                                     #
-        #        1) Compute gradients of each weight by chain rule                  #
-        #        2) Store the gradients in self.gradients                           #
-        #############################################################################
+        one_hot = np.zeros_like(probs)
+        one_hot[np.arange(len(y)), y] = 1
+        dprobs = probs - one_hot
+        da = dprobs
+        dh = da * self.ReLU_dev(h)
+        self.gradients['W1'] = X.T @ dh / X.shape[0]
 
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
         return loss, accuracy
