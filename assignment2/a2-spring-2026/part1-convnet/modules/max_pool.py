@@ -36,9 +36,9 @@ class MaxPooling:
 
     def __init__(self, kernel_size, stride):
         self.kernel_size = kernel_size
-        self.stride = stride
-        self.cache = None
-        self.dx = None
+        self.stride      = stride
+        self.cache       = None
+        self.dx          = None
 
     def forward(self, x):
         """
@@ -46,18 +46,24 @@ class MaxPooling:
         :param x: input, (N, C, H, W)
         :return: The output by max pooling with kernel_size and stride
         """
-        out = None
-        #############################################################################
-        # TODO: Implement the max pooling forward pass.                             #
-        # Hint:                                                                     #
-        #       1) You may implement the process with loops                         #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
-        self.cache = (x, H_out, W_out)
-        return out
+        N, C, H, W = x.shape                                            #batch size, channels, height, width
+        K = self.kernel_size                                            #kernel size
+        S = self.stride                                                 #stride
+        H_out = 1 + (H - K) // S                                        #output height
+        W_out = 1 + (W - K) // S                                        #output width       
+        out = np.zeros((N, C, H_out, W_out), dtype=x.dtype)             #initialize output
+        for n in range(N):                                              #iterate over batch size
+            for c in range(C):                                          #iterate over channels
+                for i in range(H_out):                                  #iterate over output height
+                    h_start = i * S                                     #calculate starting height index    
+                    h_end = h_start + K                                 #calculate ending height index
+                    for j in range(W_out):                              #iterate over output width
+                        w_start = j * S                                 #calculate starting width index
+                        w_end = w_start + K                             #calculate ending width index
+                        window = x[n, c, h_start:h_end, w_start:w_end]  #extract the window for max pooling
+                        out[n, c, i, j] = np.max(window)                #store the max value in the output
+        self.cache = (x, H_out, W_out)                                  #cache the input and output dimensions for backward pass
+        return out                                                       #return the output of max pooling
 
     def backward(self, dout):
         """
@@ -65,14 +71,22 @@ class MaxPooling:
         :param dout: Upstream derivatives
         :return: nothing, but self.dx should be updated
         """
-        x, H_out, W_out = self.cache
-        #############################################################################
-        # TODO: Implement the max pooling backward pass.                            #
-        # Hint:                                                                     #
-        #       1) You may implement the process with loops                         #
-        #       2) You may find np.unravel_index useful                             #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+        x, H_out, W_out = self.cache        
+        N, C, H, W = x.shape
+        K = self.kernel_size
+        S = self.stride
+        
+        dx = np.zeros_like(x)
+        for n in range(N):
+            for c in range(C):
+                for i in range(H_out):
+                    h_start = i * S
+                    h_end = h_start + K
+                    for j in range(W_out):
+                        w_start = j * S
+                        w_end = w_start + K
+                        window = x[n, c, h_start:h_end, w_start:w_end]
+                        max_idx = np.argmax(window)
+                        max_pos = np.unravel_index(max_idx, window.shape)
+                        dx[n, c, h_start + max_pos[0], w_start + max_pos[1]] += dout[n, c, i, j]
+        self.dx = dx
