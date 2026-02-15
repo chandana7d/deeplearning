@@ -35,11 +35,5 @@ class SGD(_BaseOptimizer):
         :return: None, but the model weights should be updated
         """
         self.apply_regularization(model)
-        #############################################################################
-        # TODO:                                                                     #
-        #    1) Update model weights based on the learning rate and gradients       #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+        for key in model.weights:
+            model.weights[key] -= self.learning_rate * model.gradients[key]

@@ -35,13 +35,9 @@ class _BaseOptimizer:
         :param model: The model with gradients
         :return: None, but the gradient dictionary of the model should be updated
         """
-
-        #############################################################################
-        # TODO:                                                                     #
-        #    1) Apply L2 penalty to model weights based on the regularization       #
-        #       coefficient                                                         #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+         # Apply L2 regularization to each weight parameter in the model
+        for param_name, param_value in model.weights.items():
+            # Only apply regularization to weights, not biases
+            if 'weight' in param_name or 'W' in param_name:
+                if param_name in model.gradients:
+                    model.gradients[param_name] += self.reg * param_value

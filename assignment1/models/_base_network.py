@@ -47,15 +47,8 @@ class _baseNetwork:
             prob: softmax probabilities (N, num_classes)
         """
         prob = None
-        #############################################################################
-        # TODO:                                                                     #
-        #    1) Calculate softmax scores of input images                            #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
-
+        exp_scores = np.exp(scores - np.max(scores, axis=1, keepdims=True))  # for numerical stability
+        prob = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
         return prob
 
     def cross_entropy_loss(self, x_pred, y):
@@ -66,14 +59,7 @@ class _baseNetwork:
         :return: The computed Cross-Entropy Loss
         """
         loss = None
-        #############################################################################
-        # TODO:                                                                     #
-        #    1) Implement Cross-Entropy Loss                                        #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+        loss = -np.mean(np.log(x_pred[np.arange(len(y)), y]))
         return loss
 
     def compute_accuracy(self, x_pred, y):
@@ -84,14 +70,8 @@ class _baseNetwork:
         :return: The accuracy of the batch
         """
         acc = None
-        #############################################################################
-        # TODO:                                                                     #
-        #    1) Implement the accuracy function                                     #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+        pred_classes = np.argmax(x_pred, axis=1)
+        acc = np.mean(pred_classes == y)
         return acc
 
     def sigmoid(self, X):
@@ -103,13 +83,8 @@ class _baseNetwork:
             out: the value after the sigmoid activation is applied to the input (N, layer size)
         """
         out = None
-        #############################################################################
-        # TODO: Comput the sigmoid activation on the input                          #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+        
+        out = 1 / (1 + np.exp(-X))
         return out
 
     def sigmoid_dev(self, x):
@@ -119,14 +94,8 @@ class _baseNetwork:
         :return: The derivative of sigmoid function at x
         """
         ds = None
-        #############################################################################
-        # TODO:                                                                     #
-        #    1) Implement the derivative of Sigmoid function                        #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+        s = self.sigmoid(x)
+        ds = s * (1 - s)
         return ds
 
     def ReLU(self, X):
@@ -138,13 +107,7 @@ class _baseNetwork:
             out: the value after the ReLU activation is applied to the input (N, layer size)
         """
         out = None
-        #############################################################################
-        # TODO: Comput the ReLU activation on the input                          #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+        out = np.maximum(0, X)
         return out
 
     def ReLU_dev(self, X):
@@ -156,11 +119,5 @@ class _baseNetwork:
             out: gradient of ReLU given input X
         """
         out = None
-        #############################################################################
-        # TODO: Comput the gradient of ReLU activation                              #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+        out = (X > 0).astype(float)
         return out

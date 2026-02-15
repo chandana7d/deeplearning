@@ -68,16 +68,18 @@ def load_mnist_trainval():
     print("Training data loaded with {count} images".format(count=len(data)))
 
     # split training/validation data
-    train_data = None
-    train_label = None
-    val_data = None
-    val_label = None
     #############################################################################
     # TODO:                                                                     #
     #    1) Split the entire training set to training data and validation       #
     #       data. Use 80% of your data for training and 20% of your data for    #
     #       validation. Note: Don't shuffle here.                               #
     #############################################################################
+
+    train_size = int(0.8 * len(data))
+    train_data = data[:train_size]
+    train_label = label[:train_size]
+    val_data = data[train_size:]
+    val_label = label[train_size:]
 
     #############################################################################
     #                              END OF YOUR CODE                             #
@@ -114,23 +116,25 @@ def generate_batched_data(data, label, batch_size=32, shuffle=False, seed=None):
         batched_data: (List[np.ndarray]) A list whose elements are batches of images.
         batched_label: (List[np.ndarray]) A list whose elements are batches of labels.
     """
-    batched_data = None
-    batched_label = None
+    batched_data = []
+    batched_label = []
     if seed:
         random.seed(seed)
         np.random.seed(seed)
-    #############################################################################
-    # TODO:                                                                     #
-    #    1) Shuffle data and label if shuffle=True                              #
-    #    In order to match expected output use random.shuffle(), not numpy      #
-    #    2) Generate batches of images with the required batch size             #
-    #    It's okay if the size of your last batch is smaller than the required  #
-    #    batch size                                                             #
-    #############################################################################
 
-    #############################################################################
-    #                              END OF YOUR CODE                             #
-    #############################################################################
+    if shuffle:
+        combined = list(zip(data, label))
+        random.shuffle(combined)
+        data, label = zip(*combined)
+        data = list(data)
+        label = list(label)
+
+    for i in range(0, len(data), batch_size):
+        batch_data = data[i:i + batch_size]
+        batch_label = label[i:i + batch_size]
+        batched_data.append(np.array(batch_data))
+        batched_label.append(np.array(batch_label))
+
 
     return batched_data, batched_label
 
@@ -216,12 +220,24 @@ def plot_curves(train_loss_history, train_acc_history, valid_loss_history, valid
     :param valid_acc_history: validation accuracy history of epochs
     :return: None, save two figures in the current directory
     """
-    #############################################################################
-    # TODO:                                                                     #
-    #    1) Plot learning curves of training and validation loss                #
-    #    2) Plot learning curves of training and validation accuracy            #
-    #############################################################################
+    # Plot loss
+    plt.figure()
+    plt.plot(train_loss_history, label='Training Loss')
+    plt.plot(valid_loss_history, label='Validation Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.title('Training and Validation Loss')
+    plt.savefig('loss.png')
+    plt.close()
 
-    #############################################################################
-    #                              END OF YOUR CODE                             #
-    #############################################################################
+    # Plot accuracy
+    plt.figure()
+    plt.plot(train_acc_history, label='Training Accuracy')
+    plt.plot(valid_acc_history, label='Validation Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    plt.title('Training and Validation Accuracy')
+    plt.savefig('accuracy.png')
+    plt.close()
