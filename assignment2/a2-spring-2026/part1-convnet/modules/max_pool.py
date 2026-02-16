@@ -71,22 +71,22 @@ class MaxPooling:
         :param dout: Upstream derivatives
         :return: nothing, but self.dx should be updated
         """
-        x, H_out, W_out = self.cache        
-        N, C, H, W = x.shape
+        x, H_out, W_out = self.cache                                    #retrieve cached input and output dimensions
+        N, C, H, W = x.shape                                            #batch size, channels, height, width
         K = self.kernel_size
-        S = self.stride
+        S = self.stride                                                 #stride
         
-        dx = np.zeros_like(x)
-        for n in range(N):
-            for c in range(C):
-                for i in range(H_out):
-                    h_start = i * S
-                    h_end = h_start + K
-                    for j in range(W_out):
-                        w_start = j * S
-                        w_end = w_start + K
-                        window = x[n, c, h_start:h_end, w_start:w_end]
-                        max_idx = np.argmax(window)
-                        max_pos = np.unravel_index(max_idx, window.shape)
-                        dx[n, c, h_start + max_pos[0], w_start + max_pos[1]] += dout[n, c, i, j]
+        dx = np.zeros_like(x)                                           #initialize gradient with respect to input
+        for n in range(N):                                              #iterate over batch size
+            for c in range(C):                                          #iterate over channels
+                for i in range(H_out):                                  #iterate over output height
+                    h_start = i * S                                     #calculate starting height index
+                    h_end = h_start + K                                 #calculate ending height index
+                    for j in range(W_out):                              #iterate over output width
+                        w_start = j * S                                 #calculate starting width index
+                        w_end = w_start + K                             #calculate ending width index
+                        window = x[n, c, h_start:h_end, w_start:w_end]  #extract the window for max pooling
+                        max_idx = np.argmax(window)                     #find the index of the max value in the window
+                        max_pos = np.unravel_index(max_idx, window.shape)  #convert the flat index to 2D index
+                        dx[n, c, h_start + max_pos[0], w_start + max_pos[1]] += dout[n, c, i, j]  #propagate the gradient to the max value position
         self.dx = dx

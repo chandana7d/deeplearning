@@ -76,16 +76,10 @@ class ConvNet:
           probs: the probabilities of all classes: (N, num_classes)
           loss: the cross entropy loss
         """
-        probs = None
-        loss = None
-        #############################################################################
-        # TODO:                                                                     #
-        #    1) Implement forward pass of the model                                 #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+        loss = None 
+        for module in self.modules:
+            probs = module.forward(probs)
+        probs, loss = self.criterion.forward(probs, y)
         return probs, loss
 
     def backward(self):
@@ -93,11 +87,9 @@ class ConvNet:
         The backward pass of the model
         :return: nothing but dx, dw, and db of all modules are updated
         """
-        #############################################################################
-        # TODO:                                                                     #
-        #    1) Implement backward pass of the model                                #
-        #############################################################################
+        self.criterion.backward()
+        dout = self.criterion.dx
+        for module in reversed(self.modules):
+            dout = module.backward(dout)
 
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+        
