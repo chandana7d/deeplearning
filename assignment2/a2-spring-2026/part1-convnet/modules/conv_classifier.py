@@ -76,7 +76,8 @@ class ConvNet:
           probs: the probabilities of all classes: (N, num_classes)
           loss: the cross entropy loss
         """
-        loss = None 
+        loss = None
+        probs = x
         for module in self.modules:
             probs = module.forward(probs)
         probs, loss = self.criterion.forward(probs, y)
@@ -91,5 +92,6 @@ class ConvNet:
         dout = self.criterion.dx
         for module in reversed(self.modules):
             dout = module.backward(dout)
+        return dout
 
         

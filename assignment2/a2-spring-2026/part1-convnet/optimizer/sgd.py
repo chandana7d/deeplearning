@@ -20,6 +20,8 @@ prohibited and subject to being investigated as a GT honor code violation.
 -----do not edit anything above this line---
 """
 
+import numpy as np
+
 from ._base_optimizer import _BaseOptimizer
 
 def hello_do_you_copy():
@@ -44,20 +46,12 @@ class SGD(_BaseOptimizer):
 
         for idx, m in enumerate(model.modules):
             if hasattr(m, 'weight'):
-                #############################################################################
-                # TODO:                                                                     #
-                #    1) Momentum updates for weights                                        #
-                #############################################################################
-                pass
-                #############################################################################
-                #                              END OF YOUR CODE                             #
-                #############################################################################
+                if not hasattr(m, 'velocity_w'):
+                    m.velocity_w = np.zeros_like(m.weight)
+                m.velocity_w = self.momentum * m.velocity_w - self.learning_rate * m.dw
+                m.weight += m.velocity_w    
             if hasattr(m, 'bias'):
-                #############################################################################
-                # TODO:                                                                     #
-                #    1) Momentum updates for bias                                           #
-                #############################################################################
-                pass
-                #############################################################################
-                #                              END OF YOUR CODE                             #
-                #############################################################################
+                if not hasattr(m, 'velocity_b'):
+                    m.velocity_b = np.zeros_like(m.bias)
+                m.velocity_b = self.momentum * m.velocity_b - self.learning_rate * m.db
+                m.bias += m.velocity_b
