@@ -43,7 +43,10 @@ def reweight(cls_num_list, beta=0.9999):
     #############################################################################
     # TODO: reweight each class by effective numbers                            #
     #############################################################################
-    per_cls_weights = None
+    cls_counts = torch.tensor(cls_num_list, dtype=torch.float32)
+    effective_num = 1.0 - torch.pow(beta, cls_counts)
+    per_cls_weights = (1.0 - beta) / effective_num
+    per_cls_weights = per_cls_weights / per_cls_weights.sum() * len(cls_num_list)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -68,7 +71,18 @@ class FocalLoss(nn.Module):
         #############################################################################
         # TODO: Implement forward pass of the focal loss                            #
         #############################################################################
+        log_probs = F.log_softmax(input, dim=1)
+        log_pt = log_probs.gather(1, target.view(-1, 1)).squeeze(1)
+        pt = log_pt.exp()
 
+        focal_factor = (1.0 - pt).pow(self.gamma)
+        loss = -focal_factor * log_pt
+
+        if self.weight is not None:
+            weight = self.weight.to(input.device).type_as(input)
+            loss = loss * weight.gather(0, target)
+
+        loss = loss.mean()
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################

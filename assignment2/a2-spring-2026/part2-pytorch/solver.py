@@ -287,28 +287,18 @@ class Solver(object):
         return acc
 
     def _compute_loss_update_params(self, data, target):
-        output = None
-        loss = None
+
         if self.model.training:
-            #############################################################################
-            # TODO: Complete the body of training loop                                  #
-            #       1. forward data batch to the model                                  #
-            #       2. Compute batch loss                                               #
-            #       3. Compute gradients and update model parameters                    #
-            #############################################################################
-            pass
-            #############################################################################
-            #                              END OF YOUR CODE                             #
-            #############################################################################
+            data.requires_grad_()
+            self.optimizer.zero_grad()
+            output = self.model(data)
+            loss = self.criterion(output, target)
+            loss.backward()
+            self.optimizer.step()
         else:
-            #############################################################################
-            # TODO: Complete the body of testing  loop                                  #
-            #       HINT: torch.inference_mode()                                        #
-            #############################################################################
-            pass
-            #############################################################################
-            #                              END OF YOUR CODE                             #
-            #############################################################################
+            with torch.inference_mode():
+                output = self.model(data)
+                loss = self.criterion(output, target)
 
         return output, loss
 
