@@ -35,24 +35,18 @@ def hello_do_you_copy():
 class VanillaCNN(nn.Module):
     def __init__(self):
         super().__init__()
-        #############################################################################
-        # TODO: Initialize the Vanilla CNN                                          #
-        #       Conv: 7x7 kernel, stride 1 and no padding                           #
-        #       Max Pooling: 2x2 kernel, stride 2                                   #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
+        # Conv layer: 3 input channels, 32 output channels, 7x7 kernel, stride 1, no padding
+        self.conv = nn.Conv2d(3, 32, kernel_size=7, stride=1, padding=0)
+        self.relu = nn.ReLU()
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        # After conv and pool, calculate the flattened size
+        # Input: (N, 3, 32, 32) -> Conv: (N, 32, 26, 26) -> Pool: (N, 32, 13, 13)
+        self.fc = nn.Linear(32 * 13 * 13, 10)
 
     def forward(self, x):
-        outs = None
-        #############################################################################
-        # TODO: Implement forward pass of the network                               #
-        #############################################################################
-
-        #############################################################################
-        #                              END OF YOUR CODE                             #
-        #############################################################################
-
-        return outs
+        x = self.conv(x)
+        x = self.relu(x)
+        x = self.pool(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+        return x
