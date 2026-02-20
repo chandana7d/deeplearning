@@ -35,34 +35,65 @@ def hello_do_you_copy():
 class MyModel(nn.Module):
     def __init__(self):
         super().__init__()
-        # Custom CNN: 2 conv layers, 2 pool, 2 fc
+        # Advanced Custom CNN: 4 conv blocks, global avg pool, deep FC, more dropout
         self.conv1 = nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1)
-        self.relu1 = nn.ReLU()
+        self.bn1 = nn.BatchNorm2d(32)
+        self.relu1 = nn.LeakyReLU(0.1)
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
+
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
-        self.relu2 = nn.ReLU()
-        self.res_conv = nn.Conv2d(32, 64, kernel_size=1, stride=1, padding=0)  # for residual, stride=1
-        self.res_pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.bn2 = nn.BatchNorm2d(64)
+        self.relu2 = nn.LeakyReLU(0.1)
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.relu3 = nn.LeakyReLU(0.1)
+        self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        self.conv4 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1)
+        self.bn4 = nn.BatchNorm2d(256)
+        self.relu4 = nn.LeakyReLU(0.1)
+        self.pool4 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        self.global_avg_pool = nn.AdaptiveAvgPool2d((1, 1))
         self.flatten = nn.Flatten()
-        self.fc1 = nn.Linear(64 * 8 * 8, 128)
-        self.relu3 = nn.ReLU()
-        self.fc2 = nn.Linear(128, 10)
+        self.fc1 = nn.Linear(256, 256)
+        self.relu5 = nn.LeakyReLU(0.1)
+        self.dropout1 = nn.Dropout(0.5)
+        self.fc2 = nn.Linear(256, 128)
+        self.relu6 = nn.LeakyReLU(0.1)
+        self.dropout2 = nn.Dropout(0.5)
+        self.fc3 = nn.Linear(128, 10)
 
     def forward(self, x):
         out = self.conv1(x)
+        out = self.bn1(out)
         out = self.relu1(out)
         out = self.pool1(out)
-        # Save for residual before conv2 and pool2
-        res = self.res_conv(out)
+
         out = self.conv2(out)
+        out = self.bn2(out)
         out = self.relu2(out)
         out = self.pool2(out)
-        # Match spatial size of res to out
-        res = nn.functional.adaptive_max_pool2d(res, out.shape[2:])
-        out = out + res
+
+        out = self.conv3(out)
+        out = self.bn3(out)
+        out = self.relu3(out)
+        out = self.pool3(out)
+
+        out = self.conv4(out)
+        out = self.bn4(out)
+        out = self.relu4(out)
+        out = self.pool4(out)
+
+        out = self.global_avg_pool(out)
         out = self.flatten(out)
         out = self.fc1(out)
-        out = self.relu3(out)
+        out = self.relu5(out)
+        out = self.dropout1(out)
         out = self.fc2(out)
+        out = self.relu6(out)
+        out = self.dropout2(out)
+        out = self.fc3(out)
         return out
