@@ -90,3 +90,4 @@ class MaxPooling:
                         max_pos = np.unravel_index(max_idx, window.shape)  #convert the flat index to 2D index
                         dx[n, c, h_start + max_pos[0], w_start + max_pos[1]] += dout[n, c, i, j]  #propagate the gradient to the max value position
         self.dx = dx
+        return dx

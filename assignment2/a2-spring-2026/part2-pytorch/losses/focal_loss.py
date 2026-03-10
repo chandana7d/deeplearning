@@ -43,8 +43,8 @@ def reweight(cls_num_list, beta=0.9999):
     #############################################################################
     # TODO: reweight each class by effective numbers                            #
     #############################################################################
-    cls_counts = torch.tensor(cls_num_list, dtype=torch.float32)
-    effective_num = 1.0 - torch.pow(beta, cls_counts)
+    cls_counts      = torch.tensor(cls_num_list, dtype=torch.float32)
+    effective_num   = 1.0 - torch.pow(beta, cls_counts)
     per_cls_weights = (1.0 - beta) / effective_num
     per_cls_weights = per_cls_weights / per_cls_weights.sum() * len(cls_num_list)
     #############################################################################
@@ -56,9 +56,9 @@ def reweight(cls_num_list, beta=0.9999):
 class FocalLoss(nn.Module):
     def __init__(self, weight=None, gamma=0.0):
         super().__init__()
-        assert gamma >= 0
-        self.gamma = gamma
-        self.weight = weight
+        assert gamma    >= 0
+        self.gamma      = gamma
+        self.weight     = weight
 
     def forward(self, input, target):
         """
@@ -67,23 +67,30 @@ class FocalLoss(nn.Module):
         :param target: labels
         :return: tensor of focal loss in scalar
         """
-        loss = None
         #############################################################################
         # TODO: Implement forward pass of the focal loss                            #
         #############################################################################
-        log_probs = F.log_softmax(input, dim=1)
-        log_pt = log_probs.gather(1, target.view(-1, 1)).squeeze(1)
-        pt = log_pt.exp()
+        log_probs    = F.log_softmax(input, dim=1)
+        log_pt       = log_probs.gather(1, target.view(-1, 1)).squeeze(1)
+        pt           = log_pt.exp()
 
         focal_factor = (1.0 - pt).pow(self.gamma)
-        loss = -focal_factor * log_pt
+        loss         = -focal_factor * log_pt
 
         if self.weight is not None:
-            weight = self.weight.to(input.device).type_as(input)
-            loss = loss * weight.gather(0, target)
+            weight   = self.weight.to(input.device).type_as(input)
+            loss     = loss * weight.gather(0, target)
 
-        loss = loss.mean()
+        loss         = loss.mean()
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################
         return loss
+
+
+if __name__ == "__main__":
+    hello_do_you_copy()
+    reweight([100, 20, 10], beta=0.9)
+    fl_obj = FocalLoss(gamma=2.0, weight=torch.tensor([1.0, 2.0, 3.0]))
+    loss = fl_obj.forward(torch.tensor([[0.1, 0.2, 0.7], [0.3, 0.4, 0.3], [0.2, 0.5, 0.3]]), torch.tensor([2, 1, 0]))  
+    print(f"Focal Loss: {loss.item()}")
