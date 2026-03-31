@@ -58,9 +58,15 @@ class Linear:
         :param x: input data, (N, d1, d2, ..., dn) where the product of d1, d2, ..., dn is equal to self.in_dim
         :return: The output computed by Wx+b. Save necessary variables in cache for backward
         """
-        N = x.shape[0]                                                   #batch size
-        x_reshaped = x.reshape(N, -1)                                    #reshape input to (N, self.in_dim)
-        out = x_reshaped.dot(self.weight) + self.bias                    #compute output
+        out = None
+        #############################################################################
+        # TODO: Implement the forward pass.                                         #
+        #    HINT: You may want to flatten the input first                          #
+        #############################################################################
+
+        #############################################################################
+        #                              END OF YOUR CODE                             #
+        #############################################################################
         self.cache = x
         return out
 
@@ -71,11 +77,10 @@ class Linear:
         :return: nothing but dx, dw, and db of self should be updated
         """
         x = self.cache
-        N = x.shape[0]                                            #batch size
-        x_reshaped = x.reshape(N, -1)                             #reshape input to (N, self.in_dim)
-        self.dw = x_reshaped.T.dot(dout)                          #compute gradient with respect to weights
-        self.db = np.sum(dout, axis=0)                            #compute gradient with respect to bias
-        dx_reshaped = dout.dot(self.weight.T)                     #compute gradient with respect to input
-        self.dx = dx_reshaped.reshape(x.shape)                    #reshape dx to the original input shape
-        return self.dx
+        #############################################################################
+        # TODO: Implement the linear backward pass.                                 #
+        #############################################################################
 
+        #############################################################################
+        #                              END OF YOUR CODE                             #
+        #############################################################################
